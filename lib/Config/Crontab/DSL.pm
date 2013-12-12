@@ -10,7 +10,7 @@ use Config::Crontab;
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
-    job minute hour day_of_week month command dump deactivate
+    job minute hour day day_of_week month command dump deactivate
 /;
 
 my $pool = {};
@@ -94,6 +94,13 @@ sub month($) {
     my $month = shift;
     return unless $pool->{$caller}{event};
     $pool->{$caller}{event}->month($month);
+}
+
+sub day($) {
+    my $caller = scalar caller;
+    my $dom = shift;
+    return unless $pool->{$caller}{event};
+    $pool->{$caller}{event}->dom($dom);
 }
 
 sub day_of_week($) {
