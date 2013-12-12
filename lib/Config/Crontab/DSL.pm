@@ -11,7 +11,8 @@ our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
     job minute hour day day_of_week month command dump deactivate
-/;
+    every range
+    MON TUE WED THU FRI SAT SUN/;
 
 my $pool = {};
 
@@ -78,36 +79,41 @@ sub job(&) {
 sub minute($) {
     my $caller = scalar caller;
     my $minute = shift;
+    $minute = [$minute] unless ref $minute;
     return unless $pool->{$caller}{event};
-    $pool->{$caller}{event}->minute($minute);
+    $pool->{$caller}{event}->minute(join ",", @$minute);
 }
 
 sub hour($) {
     my $caller = scalar caller;
     my $hour = shift;
+    $hour = [$hour] unless ref $hour;
     return unless $pool->{$caller}{event};
-    $pool->{$caller}{event}->hour($hour);
+    $pool->{$caller}{event}->hour(join ",", @$hour);
 }
 
 sub month($) {
     my $caller = scalar caller;
     my $month = shift;
+    $month = [$month] unless ref $month;
     return unless $pool->{$caller}{event};
-    $pool->{$caller}{event}->month($month);
+    $pool->{$caller}{event}->month(join ",", @$month);
 }
 
 sub day($) {
     my $caller = scalar caller;
     my $dom = shift;
+    $dom = [$dom] unless ref $dom;
     return unless $pool->{$caller}{event};
-    $pool->{$caller}{event}->dom($dom);
+    $pool->{$caller}{event}->dom(join ",", @$dom);
 }
 
 sub day_of_week($) {
     my $caller = scalar caller;
     my $dow = shift;
+    $dow = [$dow] unless ref $dow;
     return unless $pool->{$caller}{event};
-    $pool->{$caller}{event}->dow($dow);
+    $pool->{$caller}{event}->dow(join ",", @$dow);
 }
 
 sub command($) {
@@ -122,6 +128,29 @@ sub deactivate() {
     return unless $pool->{$caller}{event};
     $pool->{$caller}{event}->active(0);
 }
+
+sub every($;$$) {
+    if (@_ == 1) {
+        return sprintf '*/%d', @_;
+    }
+    else {
+        my ($p1, $p2) = @_;
+        $p1 = join(",", @$p1) if ref $p1;
+        return sprintf '%s/%d', $p1, $p2;
+    }
+}
+
+sub range($$) {
+    return sprintf '%d-%d', @_;
+}
+
+sub SUN() { 0 }
+sub MON() { 1 }
+sub TUE() { 2 }
+sub WED() { 3 }
+sub THU() { 4 }
+sub FRI() { 5 }
+sub SAT() { 6 }
 
 1;
 __END__
