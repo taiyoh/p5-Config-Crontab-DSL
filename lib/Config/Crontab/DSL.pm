@@ -10,9 +10,11 @@ use Config::Crontab;
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
-    job minute hour day day_of_week month command dump deactivate
+    job minute hour day day_of_week month command deactivate
     every range
-    MON TUE WED THU FRI SAT SUN/;
+    MON TUE WED THU FRI SAT SUN
+    dump find
+/;
 
 my $pool = {};
 
@@ -29,24 +31,53 @@ sub import {
     $class->export_to_level(1);
 }
 
+## class methods
+
 sub dump {
-    my $class = shift;
-    $pool->{$class}{ct}->dump;
+    my $class = shift or return;
+    my $data = $pool->{$class} or return;
+    $data->{ct}->dump;
 }
+
+sub find {
+    my $class = shift or return;
+    my $data = $pool->{$class} or return;
+
+    my $type = shift or return;
+    if ($type eq 'env') {
+        if (!@_) {
+            return $data->{ct}->select(-type => 'env');
+        }
+        else {
+            my $val = shift;
+            return $data->{ct}->select(
+                -type  => 'env',
+                -value => $val
+            );
+        }
+    }
+    elsif ($type eq 'job') {
+        return $data->{ct}->select(-type => 'event');
+    }
+    return;
+}
+
+## DSL methods
 
 sub crontab(&) {
     my $caller = scalar caller;
+    return unless $pool->{$caller};
     my $in_block_code = shift;
     $pool->{$caller}{block} = Config::Crontab::Block->new;
     $in_block_code->();
-    $pool->{$caller}{ct}->last($pool->{$caller}{block});
+    $pool->{$caller}{ct}->last(delete $pool->{$caller}{block});
     return;
 }
 
 sub comment($) {
     my $caller = scalar caller;
-    my $comment = shift;
 
+    my $comment = shift;
     return unless $pool->{$caller}{block};
     $pool->{$caller}{block}->last(Config::Crontab::Comment->new(
         -data => "## $comment"
@@ -55,8 +86,8 @@ sub comment($) {
 
 sub env(@) {
     my $caller = scalar caller;
-    my @args = @_;
 
+    my @args = @_;
     return unless $pool->{$caller}{block};
     while (my ($name, $value) = splice @args, 0, 2) {
         $pool->{$caller}{block}->last(Config::Crontab::Env->new(
