@@ -160,9 +160,13 @@ sub deactivate() {
     $pool->{$caller}{event}->active(0);
 }
 
+## util functions
+
 sub every($;$$) {
+    my $caller = scalar caller;
+    return unless $pool->{$caller}{event};
     if (@_ == 1) {
-        return sprintf '*/%d', @_;
+        return sprintf '*/%d', $_[0];
     }
     else {
         my ($p1, $p2) = @_;
@@ -172,6 +176,8 @@ sub every($;$$) {
 }
 
 sub range($$) {
+    my $caller = scalar caller;
+    return unless $pool->{$caller}{event};
     return sprintf '%d-%d', @_;
 }
 
