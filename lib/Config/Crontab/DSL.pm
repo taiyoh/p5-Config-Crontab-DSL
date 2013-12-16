@@ -10,7 +10,7 @@ use Config::Crontab;
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
-    job minute hour day day_of_week month command deactivate
+    event minute hour day day_of_week month command deactivate
     every range
     MON TUE WED THU FRI SAT SUN
     dump find
@@ -56,7 +56,7 @@ sub find {
             );
         }
     }
-    elsif ($type eq 'job') {
+    elsif ($type eq 'event') {
         return $data->{ct}->select(-type => 'event');
     }
     return;
@@ -97,7 +97,7 @@ sub env(@) {
     }
 }
 
-sub job(&) {
+sub event(&) {
     my $caller = scalar caller;
     my $in_event_code = shift;
     return unless $pool->{$caller}{block};
@@ -201,20 +201,20 @@ Config::Crontab::DSL -
     crontab {
         comment "hoge--";
         env FOO => "bar";
-        job {
+        event {
             minute 0;
             hour   0;
             day_of_week range MON, FRI;
             command 'echo "hello!"';
         };
-        job {
+        event {
             minute 1;
             hour   4;
             day    [11 .. 13];
             command 'echo "world!"';
             deactivate;
         };
-        job {
+        event {
             minute every 10;
             hour range 10, 16;
             day every range(1,10), 3;
@@ -282,11 +282,11 @@ crontabブロックの中で、実行するタスクを定義していきます�
 
     comment "あいうえお"; # => ## あいうえお
 
-=item job
+=item event
 
 メインとなる、実行時刻と実行コマンドの定義を行います
 
-    job {
+    event {
         ...
     };
 
@@ -312,9 +312,9 @@ crontabブロックの中で、実行するタスクを定義していきます�
 
 =back
 
-=head4 job attributes
+=head4 event attributes
 
-以下の関数は、jobブロック内でのみ使用可能です。
+以下の関数は、eventブロック内でのみ使用可能です。
 また、Arrayリファレンスを渡すことで、カンマ区切りの数値の列が登録されます
 
     [1 .. 3] # => 1,2,3
@@ -349,7 +349,7 @@ MON,TUE,WED,THU,FRI,SAT,SUNという定数を渡すことも可能です。
 
 =item deactivate
 
-jobの定義はしたが一時的に実行しないようにしたい、といった場合、
+eventの定義はしたが一時的に実行しないようにしたい、といった場合、
 定義全体をコメントアウトして出力させないこともできますが、
 deactivateと入れておくことで行頭に#を入れてコメントアウトさせることもできます。
 

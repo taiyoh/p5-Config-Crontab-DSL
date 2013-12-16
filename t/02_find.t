@@ -12,9 +12,9 @@ my $env = $envs[0];
 is $env->name, 'FOO';
 is $env->value, 'bar';
 
-my @jobs = t::Foo->find('job');
+my @events = t::Foo->find('event');
 
-is scalar(@jobs), 3;
+is scalar(@events), 3;
 
 my @commands = (
     'echo "hello!"',
@@ -23,8 +23,8 @@ my @commands = (
 );
 
 for my $cmd (@commands) {
-    my $job = shift @jobs;
-    is $job->command, $cmd;
+    my $event = shift @events;
+    is $event->command, $cmd;
 }
 
 done_testing;
