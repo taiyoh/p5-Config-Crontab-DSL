@@ -6,7 +6,6 @@ use warnings;
 use parent 'Exporter';
 
 use Config::Crontab;
-use Config::Crontab::Finder;
 
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
@@ -70,6 +69,7 @@ sub find {
 sub search {
     my $class = shift or return;
     my $data = $pool->{$class} or return;
+    require Config::Crontab::Finder;
     Config::Crontab::Finder->search_events($data->{ct}, @_);
 }
 
