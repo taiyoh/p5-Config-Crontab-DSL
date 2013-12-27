@@ -1,9 +1,5 @@
 package t::Foo;
 
-use strict;
-use warnings;
-use utf8;
-
 use Config::Crontab::DSL;
 
 crontab {

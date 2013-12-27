@@ -6,6 +6,7 @@ use warnings;
 use parent 'Exporter';
 
 use Config::Crontab;
+use Config::Crontab::Finder;
 
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
@@ -13,7 +14,7 @@ our @EXPORT = qw/
     event minute hour day day_of_week month command deactivate
     every range
     MON TUE WED THU FRI SAT SUN
-    dump find
+    dump find search
 /;
 
 my $pool = {};
@@ -21,6 +22,10 @@ my $pool = {};
 sub import {
     my $class = shift;
     my $caller = scalar caller;
+
+    require strict; strict->import;
+    require warnings; warnings->import;
+    require utf8; utf8->import;
 
     $pool->{$caller} = {
         ct => Config::Crontab->new,
@@ -60,6 +65,12 @@ sub find {
         return $data->{ct}->select(-type => 'event');
     }
     return;
+}
+
+sub search {
+    my $class = shift or return;
+    my $data = $pool->{$class} or return;
+    Config::Crontab::Finder->search_events($data->{ct}, @_);
 }
 
 ## DSL methods
@@ -181,6 +192,7 @@ sub range($$) {
     return sprintf '%d-%d', @_;
 }
 
+# 一週間は休日に囲まれてる方が好きなのだ
 sub SUN() { 0 }
 sub MON() { 1 }
 sub TUE() { 2 }
