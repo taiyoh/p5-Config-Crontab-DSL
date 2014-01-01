@@ -14,12 +14,13 @@ is $env->value, 'bar';
 
 my @events = t::Foo->find('event');
 
-is scalar(@events), 3;
+is scalar(@events), 4;
 
 my @commands = (
     'echo "hello!"',
     'echo "world!"',
-    'echo foo'
+    'echo foo',
+    'echo "bar"'
 );
 
 for my $cmd (@commands) {

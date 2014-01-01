@@ -10,7 +10,7 @@ use Config::Crontab;
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
-    event minute hour day day_of_week month command deactivate
+    event minute hour day day_of_week month command deactivate special
     every range
     MON TUE WED THU FRI SAT SUN
     dump find search
@@ -169,6 +169,28 @@ sub deactivate() {
     my $caller = scalar caller;
     return unless $pool->{$caller}{event};
     $pool->{$caller}{event}->active(0);
+}
+
+# @reboot         Run once, at startup.
+# @yearly         Run once a year, "0 0 1 1 *".
+# @annually       (sames as @yearly)
+# @monthly        Run once a month, "0 0 1 * *".
+# @weekly         Run once a week, "0 0 * * 0".
+# @daily          Run once a day, "0 0 * * *".
+# @midnight       (same as @daily)
+# @hourly         Run once an hour, "0 * * * *".
+
+my $special_key = +{
+    map { "@" . $_, 1 } qw/reboot yearly annually
+                           monthly weekly daily midnight hourly/ 
+};
+
+sub special($) {
+    my $caller  = scalar caller;
+    my $special = shift or return;
+    return unless $special_key->{$special};
+    return unless $pool->{$caller}{event};
+    $pool->{$caller}{event}->special($special);
 }
 
 ## util functions

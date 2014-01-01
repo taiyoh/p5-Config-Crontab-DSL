@@ -64,10 +64,12 @@ subtest _parse_time => sub {
 
 subtest search_events => sub {
 	my @events = t::Foo->search('2013-12-27 00:00:00');
-	is scalar(@events), 1;
+	is scalar(@events), 2;
 	is $events[0]->command, 'echo "hello!"';
+	is $events[1]->command, 'echo "bar"';
 
-	ok !t::Foo->search('2013-12-28 00:00:00');
+	is scalar(t::Foo->search('2013-12-28 00:00:00')), 1;
+	ok !t::Foo->search('2013-12-28 00:01:00');
 
 	is scalar(t::Foo->search('2013-12-03 10:10:00')), 1;
 	ok !t::Foo->search('2013-12-04 10:10:00');

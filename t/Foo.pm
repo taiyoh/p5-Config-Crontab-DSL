@@ -27,6 +27,11 @@ crontab {
         day every range(1,10), 3;
         command 'echo foo';
     };
+
+    event {
+        special '@daily';
+        command 'echo "bar"';
+    };
 };
 
 1;

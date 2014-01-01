@@ -15,6 +15,16 @@ my $replace = {
     minute => [0 .. 59]
 };
 
+my $special_map = {
+    yearly   => {month => 1, dom => 1, hour => 0, minute => 0},
+    annually => {month => 1, dom => 1, hour => 0, minute => 0},
+    monthly  => {dom => 1, hour => 0, minute => 0},
+    monthly  => {dow => 0, hour => 0, minute => 0},
+    daily    => {hour => 0, minute => 0},
+    midnight => {hour => 0, minute => 0},
+    hourly   => {minute => 0},
+};
+
 sub search_events {
     my ($self, $ct, $date) = @_;
     my $t = Time::Piece->strptime($date, '%Y-%m-%d %H:%M:%S');
@@ -22,6 +32,14 @@ sub search_events {
     my @events = $ct->select(-type => 'event');
     my @founds;
     for my $event (@events) {
+        if (my $special = $event->special) {
+            $special =~ s{^@}{};
+            my $map = $special_map->{$special};
+            for my $key (qw/month dom dow hour minute/) {
+                my $val = exists $map->{$key} ? $map->{$key} : '*';
+                $event->$key($val);
+            }
+        }
         next if !grep { $_ == $t->mon } @{ _parse_time(month => $event->month) };
         next if !(grep { $_ == $t->day_of_week } @{ _parse_time(wday => $event->dow) })
              || !(grep { $_ == $t->mday } @{ _parse_time(day => $event->dom) });
