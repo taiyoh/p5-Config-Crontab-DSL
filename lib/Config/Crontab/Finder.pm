@@ -7,6 +7,14 @@ use utf8;
 
 use Time::Piece;
 
+my $replace = {
+    month  => [1 .. 12],
+    wday   => [0 .. 6],
+    day    => [1 .. 31],
+    hour   => [0 .. 23],
+    minute => [0 .. 59]
+};
+
 sub search_events {
     my ($self, $ct, $date) = @_;
     my $t = Time::Piece->strptime($date, '%Y-%m-%d %H:%M:%S');
@@ -14,12 +22,11 @@ sub search_events {
     my @events = $ct->select(-type => 'event');
     my @founds;
     for my $event (@events) {
-        next if $event->month ne '*' && !grep { $_ == $t->month } @{ _parse_time($event->month) };
-        my $wday = _parse_time($event->dow eq '*' ? join(",", 0 .. 6) : $event->dow);
-        my $day  = _parse_time($event->dom eq '*' ? join(",", 1 .. 31) : $event->dom);
-        next if !grep { $_ == $t->day_of_week } @$wday || !grep { $_ == $t->day } @$day;
-        next if $event->hour ne '*' && !grep { $_ == $t->hour } @{ _parse_time($event->hour) };
-        next if $event->minute ne '*' && !grep { $_ == $t->minute } @{ _parse_time($event->minute) };
+        next if !grep { $_ == $t->mon } @{ _parse_time(month => $event->month) };
+        next if !(grep { $_ == $t->day_of_week } @{ _parse_time(wday => $event->dow) })
+             || !(grep { $_ == $t->mday } @{ _parse_time(day => $event->dom) });
+        next if !grep { $_ == $t->hour } @{ _parse_time(hour => $event->hour) };
+        next if !grep { $_ == $t->minute } @{ _parse_time(minute => $event->minute) };
         push @founds, $event;
     }
 
@@ -27,8 +34,9 @@ sub search_events {
 }
 
 sub _parse_time {
-    my $time = shift;
+    my ($type, $time) = @_;
     $time =~ s{\s}{}g;
+    $time =~ s{\*}{join(",", @{ $replace->{$type} || [] })}e;
     my $every;
     ($time, $every) = __parse_every($time);
     my $time_list = __parse_range($time);
@@ -36,7 +44,7 @@ sub _parse_time {
 
     my @results;
     for my $t (@$time_list) {
-        push @results, $t if $t % $every == 0;
+        push @results, int($t) if $t % $every == 0;
     }
     return \@results;
 }
@@ -52,7 +60,7 @@ sub __parse_range {
         my ($t1, $t2) = split '-', $time;
         return [$t1 .. $t2];
     }
-    return [split ',', $time];
+    return [map { int } split ',', $time];
 }
 
 1;
