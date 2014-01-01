@@ -400,6 +400,14 @@ eventの定義はしたが一時的に実行しないようにしたい、とい
 定義全体をコメントアウトして出力させないこともできますが、
 deactivateと入れておくことで行頭に#を入れてコメントアウトさせることもできます。
 
+=item special
+
+@reboot, @yearly, @annually, @monthly, @weekly, @daily, @midnight, @hourlyが設定できます
+
+=item user
+
+実行するユーザ名を指定します
+
 =back
 
 =head1 LICENSE
