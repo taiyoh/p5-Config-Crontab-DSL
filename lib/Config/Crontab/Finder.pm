@@ -26,7 +26,7 @@ my $special_map = {
 };
 
 sub search_events {
-    my ($self, $ct, $date) = @_;
+    my ($class, $ct, $date) = @_;
     my $t = Time::Piece->strptime($date, '%Y-%m-%d %H:%M:%S');
 
     my @events = $ct->select(-type => 'event');
