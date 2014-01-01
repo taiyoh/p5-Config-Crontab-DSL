@@ -19,7 +19,7 @@ my $special_map = {
     yearly   => {month => 1, dom => 1, hour => 0, minute => 0},
     annually => {month => 1, dom => 1, hour => 0, minute => 0},
     monthly  => {dom => 1, hour => 0, minute => 0},
-    monthly  => {dow => 0, hour => 0, minute => 0},
+    weekly   => {dow => 0, hour => 0, minute => 0},
     daily    => {hour => 0, minute => 0},
     midnight => {hour => 0, minute => 0},
     hourly   => {minute => 0},
