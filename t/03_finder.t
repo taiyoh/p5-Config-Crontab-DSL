@@ -68,6 +68,8 @@ subtest search_events => sub {
 	is $events[0]->command, 'echo "hello!"';
 	is $events[1]->command, 'echo "bar"';
 
+	is $events[0]->user, "hoge";
+
 	is scalar(t::Foo->search('2013-12-28 00:00:00')), 1;
 	ok !t::Foo->search('2013-12-28 00:01:00');
 

@@ -34,7 +34,7 @@ sub search_events {
     for my $event (@events) {
         if (my $special = $event->special) {
             $special =~ s{^@}{};
-            my $map = $special_map->{$special};
+            my $map = $special_map->{$special} or next;
             for my $key (qw/month dom dow hour minute/) {
                 my $val = exists $map->{$key} ? $map->{$key} : '*';
                 $event->$key($val);

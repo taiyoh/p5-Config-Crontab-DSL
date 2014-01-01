@@ -10,6 +10,7 @@ crontab {
         minute 0;
         hour   0;
         day_of_week range MON, FRI;
+        user "hoge";
         command 'echo "hello!"';
     };
 

@@ -10,7 +10,7 @@ use Config::Crontab;
 our $VERSION = "0.0.1";
 our @EXPORT = qw/
     crontab comment env
-    event minute hour day day_of_week month command deactivate special
+    event minute hour day day_of_week month command deactivate special user
     every range
     MON TUE WED THU FRI SAT SUN
     dump find search
@@ -191,6 +191,13 @@ sub special($) {
     return unless $special_key->{$special};
     return unless $pool->{$caller}{event};
     $pool->{$caller}{event}->special($special);
+}
+
+sub user($) {
+    my $caller = scalar caller;
+    my $user   = shift or return;
+    return unless $pool->{$caller}{event};    
+    $pool->{$caller}{event}->user($user);
 }
 
 ## util functions
